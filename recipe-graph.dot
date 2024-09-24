@@ -1,0 +1,10 @@
+digraph G {
+  rankdir=LR;
+  node [fontname = monospace];
+  edge [fontname = monospace];
+  Recipe[color=blue, fontcolor=blue];
+  Recipe -> Pipeline [label="get_pipeline()"];
+  Recipe -> GridSearchCV [label="get_grid_search()"];
+  Recipe -> RandomizedSearchCV [headlabel="get_randomized_search()", labeldistance=10.0, labelangle=10, headport="w"];
+  Recipe -> Recipe [label="add(step)", color=blue, fontcolor=blue];
+}

@@ -1,0 +1,157 @@
+---
+title: "Skrub"
+subtitle: "SODA team meeting 2024-09-24"
+author: "Jérôme Dockès"
+format: revealjs
+slide-number: true
+template-partials:
+    - title-slide.html
+---
+
+## Skrub
+
+<br/>
+
+(not [scrub](https://en.wikipedia.org/wiki/Australian_scrub_python))
+
+
+<br/>
+
+[skrub-data.org](https://skrub-data.org/dev/index.html)
+
+## Machine learning and tabular data
+
+- Machine-learning estimators expect numeric arrays
+- Real data is usually more complex:
+  - Multiple tables 
+  - Dates, categories, text, locations, …
+  
+## Skrub
+
+Bridge the gap between dataframes and scikit-learn.
+
+. . .
+
+::: {.callout-tip icon=false}
+## Data-wrangling should be
+
+- **Part of the machine-learning pipeline**
+  - Preprocessing steps as scikit-learn Transformers
+- **Easier & more enjoyable**
+  - Interactive visualization, turn-key baselines
+- **More effective**
+  - Feature extraction for categories, fuzzy-joining
+:::
+
+## Simple data
+
+```{.python filename="fit.py"}
+X, y = load_employee_salaries()
+
+model = HistGradientBoostingRegressor().fit(X, y)
+
+with open("model.pickle", "wb") as f:
+    pickle.dump(model, f)
+```
+
+## Simple data
+
+```{.python filename="fit.py"}
+X, y = load_employee_salaries()
+
+model = HistGradientBoostingRegressor().fit(X, y)
+
+with open("model.pickle", "wb") as f:
+    pickle.dump(model, f)
+```
+
+<br/>
+
+```{.python filename="predict.py"}
+with open("model.pickle", "wb") as f:
+    model = pickle.load(f)
+
+model.predict(new_x)
+```
+
+## Real data
+
+```{.python code-line-numbers="3-6|6" filename="fit.py"}
+X, y = load_employee_salaries()
+
+hired_date = pd.to_datetime(X["date_first_hired"])
+X = X.assign(year=hired_date.dt.year, month=hired_date.dt.month)
+X = X.drop("department", axis=1) # redundant with "department_name"
+# … a lot more of this
+
+model = HistGradientBoostingRegressor().fit(X, y)
+
+with open("model.pickle", "wb") as f:
+    pickle.dump(model, f)
+```
+
+## Where are `fit()`, `transform()`?
+
+```{.python code-line-numbers="3-6" filename="fit.py"}
+X, y = load_employee_salaries()
+
+hired_date = pd.to_datetime(X["date_first_hired"]) # "%m/%d/%Y"
+X = X.assign(year=hired_date.dt.year, month=hired_date.dt.month)
+X = X.drop("department", axis=1) # redundant with "department_name"
+# … a lot more of this
+
+model = HistGradientBoostingRegressor().fit(X, y)
+
+with open("model.pickle", "wb") as f:
+    pickle.dump(model, f)
+```
+
+<br/>
+
+```{.python filename="predict.py"}
+with open("model.pickle", "wb") as f:
+    model = pickle.load(f)
+
+# … 🤔
+```
+
+## Everything should be in the model
+
+```{.python filename="fit.py" code-line-numbers=1-4}
+hired_date = pd.to_datetime(X["date_first_hired"]) # "%m/%d/%Y"
+X = X.assign(year=hired_date.dt.year, month=hired_date.dt.month)
+X = X.drop("department", axis=1) # redundant with "department_name"
+# … a lot more of this
+
+model = HistGradientBoostingRegressor().fit(X, y)
+```
+
+::: {.callout-warning .fragment icon=false}
+### Code that is not in the model
+::: {.incremental}
+- Typically more low-level
+- Has to be packaged separately
+- Cannot **retain relevant state**
+- Cannot **tune hyperparameters**
+- Can **leak test data**
+:::
+:::
+
+## Expanding the scikit-learn pipeline
+
+<br/>
+
+`sklearn.preprocessing` already has many preprocessing steps as transformers: <br/> `OneHotEncoder`, `StandardScaler`, …
+
+<br/>
+
+`skrub` adds many typical dataframe operations: `DatetimeEncoder`, `DropCols`, `Joiner`, …
+
+## Examples
+
+## Next steps
+
+- Finalizing a first version of the `Recipe`
+- Adding `SentenceTransformer` to get embeddings of table entries
+- Better handling of multiple tables / data that does not come as `X`, `y`
+- …
