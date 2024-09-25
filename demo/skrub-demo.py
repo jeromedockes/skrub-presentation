@@ -45,14 +45,17 @@ vectorizer = TableVectorizer()
 vectorized_employees = vectorizer.fit_transform(employees_df)
 vectorized_employees.dtypes
 
+# %%
 vectorizer.kind_to_columns_
 
+# %%
 vectorized_employees[vectorizer.input_to_outputs_["date_first_hired"]]
 
+# %%
 vectorizer.all_processing_steps_["date_first_hired"]
 
+# %%
 vectorizer.all_processing_steps_["department"]
-
 
 
 # %% [markdown]
