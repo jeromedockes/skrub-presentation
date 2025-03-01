@@ -1,4 +1,5 @@
-*.html
+skrub-presentation.html
+demo/*.html
 skrub-presentation_files/
 *.ipynb
 .ipynb_checkpoints/
